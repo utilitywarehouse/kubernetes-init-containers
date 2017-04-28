@@ -14,4 +14,5 @@ env USERNAME=MONGO_HOST=${MONGO_HOST:-localhost} \
 copy init.sh /init.sh
 user root
 run chmod +x /init.sh
-entrypoint "/init.sh"
+entrypoint ["/bin/sh", "-c"]
+cmd ["/init.sh"]
