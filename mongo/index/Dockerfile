@@ -7,10 +7,7 @@ env USERNAME=MONGO_HOST=${MONGO_HOST:-localhost} \
 	     PASSWORD=${PASSWORD:-test_role_password} \
 	     USERNAME=${USERNAME:-test_role_username} \
 	     COLLECTION=${COLLECTION:-router-configurations} \
-	     INDEX_FIELD=${INDEX_FIELD:-serialnumber} \
-	     INDEX_NAME=${INDEX_NAME:-serialnumber_1} \
-	     FILTER_EXPRESSION=${FILTER_EXPRESSION:-"deleted: false"}
-
+	     INDEXES=${INDEXES:-"[]"}
 copy init.sh /init.sh
 user root
 run chmod +x /init.sh
