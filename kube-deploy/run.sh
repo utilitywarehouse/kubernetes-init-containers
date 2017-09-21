@@ -2,7 +2,6 @@
 
 set -u
 set -e
-set -x
 
 API_ENDPOINT="${API_ENDPOINT:-https://elb.master.k8s.$KUBE_ENV.uw.systems/apis/extensions/v1beta1/namespaces/$NAMESPACE/deployments/$DEPLOYMENT}"
 
