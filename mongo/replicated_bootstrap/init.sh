@@ -35,7 +35,7 @@ nodes=$(echo $REPLICATION_NODES | tr "," "\n")
 for node in $nodes
 do
     echo "adding replica ${node}"
-    mongo --eval "rs.add(\"${node}\")"
+    mongo --eval "rs.add({host:\"${node}\", priority: 0.99})"
 done
 
 echo "creating user ${ADMIN_USERNAME}"
