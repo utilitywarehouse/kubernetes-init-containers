@@ -11,5 +11,59 @@ this variable needs to have only secondary nodes, ie starting from 1 (ignoring t
 
 Example initContainer:
 ```
+initContainers:
+- name: init-replicated-mongo
+  image: registry.uw.systems/utilitywarehouse/uw-mongo-repl-bootstrap:latest
+  imagePullPolicy: Always
+  volumeMounts:
+  - name: test-replicated-mongo
+    mountPath: /data/db
+  env:
+  - name: ADMIN_USER
+    valueFrom:
+      secretKeyRef:
+        name: test-replicated-mongo-secrets
+        key: admin.user
+  - name: ADMIN_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: test-replicated-mongo-secrets
+        key: admin.pass
+  - name: EXPORTER_USER
+    valueFrom:
+      secretKeyRef:
+        name: test-replicated-mongo-secrets
+        key: exporter.user
+  - name: EXPORTER_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: test-replicated-mongo-secrets
+        key: exporter.pass
+  - name: MONGOLIZER_USER
+    valueFrom:
+      secretKeyRef:
+        name: test-replicated-mongo-secrets
+        key: mongolizer.user
+  - name: MONGOLIZER_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: test-replicated-mongo-secrets
+        key: mongolizer.pass
+  - name: SERVICE_USER
+    valueFrom:
+      secretKeyRef:
+        name: test-replicated-mongo-secrets
+        key: service.user
+  - name: SERVICE_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: test-replicated-mongo-secrets
+        key: service.pass
+  - name: SERVICE_DB
+    value: "service-db"
+  - name: REPL_SET
+    value: "test-replicated-mongo"
+  - name: REPLICATION_NODES
+    value: "test-replicated-mongo-1.test-replicated-mongo.telecom.svc.cluster.local:27017,test-replicated-mongo-2.test-replicated-mongo.telecom.svc.cluster.local:27017"
 
 ```
