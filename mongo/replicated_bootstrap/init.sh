@@ -30,14 +30,6 @@ rs.initiate( {
    members: [ { _id : 0, host : \"${name}\" } ]
 })"
 
-echo "rs config init ${name}"
-nodes=$(echo $REPLICATION_NODES | tr "," "\n")
-for node in $nodes
-do
-    echo "adding replica ${node}"
-    mongo --eval "rs.add({host:\"${node}\", priority: 0.99})"
-done
-
 echo "creating user ${ADMIN_USERNAME}"
 mongo --eval "
 db.createUser({
@@ -76,5 +68,14 @@ db.createUser({
        { role: \"readWrite\", db: \"${SERVICE_DB:?}\" }
     ]
 });"
+
+echo "rs config init ${name}"
+nodes=$(echo $REPLICATION_NODES | tr "," "\n")
+for node in $nodes
+do
+    echo "adding replica ${node}"
+    mongo --eval "rs.add({host:\"${node}\", priority: 0.99})"
+done
+
 
 mongod --shutdown
