@@ -9,11 +9,8 @@ if [[ $ordinal -ne 0 ]]; then
     exit 0
 fi
 
-chown -R mongodb ${DB_ROOT:?}
-gosu mongodb mongod --replSet ${REPL_SET} -fork --logpath ${DB_ROOT}/init-admin.log
-# new primary needs to wait while secondaries become active
-# This will be executed on creation only
-sleep 45
+gosu root mongod --transitionToAuth --clusterAuthMode keyFile --keyFile ${KEY_FILE} --replSet ${REPL_SET} --fork --logpath ${DB_ROOT}/init-admin.log
+sleep 30
 
 # check if replication is initialized 
 res="$(mongo --quiet --eval='printjson(rs.status())')"
@@ -29,6 +26,9 @@ rs.initiate( {
    _id : \"${REPL_SET}\",
    members: [ { _id : 0, host : \"${name}\" } ]
 })"
+
+# wait for mongodb to understand that it is master
+sleep 10
 
 echo "creating user ${ADMIN_USERNAME}"
 mongo --eval "
@@ -71,10 +71,22 @@ db.createUser({
 
 echo "rs config init ${name}"
 nodes=$(echo $REPLICATION_NODES | tr "," "\n")
+counter=1
 for node in $nodes
 do
-    echo "adding replica ${node}"
-    mongo --eval "rs.add({host:\"${node}\", priority: 0.99})"
+    echo "adding replica ${node}, ${counter}"
+    while true
+    do
+        script="mongo --quiet --eval 'rs.add({_id: ${counter}, host:\"${node}\", priority: 0.99})'"
+        out=$(eval "$script")
+        echo $out
+        if [[ $out != *"NodeNotFound"* ]]; then
+            break
+        fi
+        echo "retrying ${node}"
+        sleep 5
+    done
+    counter=$[$counter +1]
 done
 
 
