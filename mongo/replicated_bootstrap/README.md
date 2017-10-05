@@ -1,18 +1,24 @@
 # Replicated Mongo DB bootstraping script
 
-This is intended to be used in statefulset's `initContainer` to bootstrap a new replicated Mongo DB.
+This is intended to be used in statefulset's `initContainer` to bootstrap a new replicated & authenticated Mongo DB.
 StatefulSet must have `podManagementPolicy: Parallel` as the 0th pod will wait for all others to startup
 
 It creates 4 users: metrics exporter, mongolizer (backups), admin (root) and app user.
 
-App user gets rights to APP_DB and should be used in your applications config.
+App user gets rights to APP_DB and should be used in your application.
+
 
 `REPLICATION_NODES` are in format `hostname:port,hostname:port`
 this variable needs to have only secondary nodes, ie starting from 1 (ignoring the 0th, which will be the primary node)
 
 `hostname` - needs to be resolvable by DNS.
 
-Example initContainer:
+## Full examples
+
+- https://github.com/utilitywarehouse/kubernetes-manifests/blob/master/dev/energy/gas-smbtos3-mongodb.yaml
+- https://github.com/utilitywarehouse/kubernetes-manifests/blob/master/dev/telecom/bulk-line-test-mongo.yaml
+
+## Example initContainer
 ```
 initContainers:
 - name: init-replicated-mongo
