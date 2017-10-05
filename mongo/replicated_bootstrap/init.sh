@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 
 [[ `hostname` =~ -([0-9]+)$ ]] || exit 1
 ordinal=${BASH_REMATCH[1]}
@@ -10,6 +9,12 @@ if [[ $ordinal -ne 0 ]]; then
 fi
 
 gosu root mongod --transitionToAuth --clusterAuthMode keyFile --keyFile ${KEY_FILE} --replSet ${REPL_SET} --fork --logpath ${DB_ROOT}/init-admin.log
+if [ $? -ne 0 ]; then
+    cat ${DB_ROOT}/init-admin.log
+    exit 1
+fi
+
+set -e
 sleep 30
 
 # check if replication is initialized 
