@@ -36,8 +36,8 @@ rs.initiate( {
 sleep 10
 
 echo "creating user ${ADMIN_USERNAME}"
-mongo --eval "
-db.createUser({
+mongo --authenticationDatabase ${ADMIN_DB:?} --eval "
+db.getSiblingDB(\"admin\").createUser({
   user: \"${ADMIN_USERNAME:?}\",
   pwd: \"${ADMIN_PASSWORD:?}\",
   roles: [{ 
@@ -47,7 +47,7 @@ db.createUser({
 });
 " 
 
-mongo --eval "
+mongo --authenticationDatabase ${ADMIN_DB:?} --eval "
 db.getSiblingDB(\"admin\").createUser({
     user: \"${EXPORTER_USERNAME:?}\",
     pwd: \"${EXPORTER_PASSWORD:?}\",
@@ -58,15 +58,15 @@ db.getSiblingDB(\"admin\").createUser({
 });
 "
 
-mongo --eval "
-db.createUser({
+mongo --authenticationDatabase ${ADMIN_DB:?} --eval "
+db.getSiblingDB(\"admin\").createUser({
     user: \"${MONGOLIZER_USERNAME:?}\",
     pwd: \"${MONGOLIZER_PASSWORD:?}\",
     roles: [{ role: \"backup\", db:\"admin\"}]
 });"
 
 mongo --eval "
-db.createUser({
+db.getSiblingDB(\"${APP_DB:?}\").createUser({
     user: \"${APP_USERNAME:?}\",
     pwd: \"${APP_PASSWORD:?}\",
     roles: [
