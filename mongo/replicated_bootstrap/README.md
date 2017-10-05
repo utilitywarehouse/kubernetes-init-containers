@@ -26,7 +26,7 @@ You can generate keyFile using `openssl rand 741 -base64 | base64 -w0`
 
 Mongodb connection string is in form `[mongodb://][user:pass@]host1[:port1][,host2[:port2],...][/database][?options]`
 
-Exporter can connect to localhost, it's connection string is in `mongob://exporter_username:exporter_password@localhost:27017/admin`
+Exporter needs to connect to localhost, it's connection string is `mongob://exporter_username:exporter_password@localhost:27017/admin`
 
 ## Example initContainer
 ```
