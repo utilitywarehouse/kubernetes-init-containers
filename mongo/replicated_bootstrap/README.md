@@ -1,8 +1,11 @@
 # Replicated Mongo DB bootstraping script
 
 This is intended to be used in statefulset's `initContainer` to bootstrap a new replicated Mongo DB.
+StatefulSet must have `podManagementPolicy: Parallel` as the 0th pod will wait for all others to startup
 
-It creates 4 users: metrics exporter, Mongolizer (backups), admin (root) and service user.
+It creates 4 users: metrics exporter, mongolizer (backups), admin (root) and app user.
+
+App user gets rights to APP_DB and should be used in your applications config.
 
 `REPLICATION_NODES` are in format `hostname:port,hostname:port`
 this variable needs to have only secondary nodes, ie starting from 1 (ignoring the 0th, which will be the primary node)
@@ -49,18 +52,18 @@ initContainers:
       secretKeyRef:
         name: test-replicated-mongo-secrets
         key: mongolizer.pass
-  - name: SERVICE_USER
+  - name: APP_USER
     valueFrom:
       secretKeyRef:
         name: test-replicated-mongo-secrets
-        key: service.user
-  - name: SERVICE_PASSWORD
+        key: app.user
+  - name: APP_PASSWORD
     valueFrom:
       secretKeyRef:
         name: test-replicated-mongo-secrets
-        key: service.pass
-  - name: SERVICE_DB
-    value: "service-db"
+        key: app.pass
+  - name: APP_DB
+    value: "app-db"
   - name: REPL_SET
     value: "test-replicated-mongo"
   - name: REPLICATION_NODES

@@ -67,10 +67,10 @@ db.createUser({
 
 mongo --eval "
 db.createUser({
-    user: \"${SERVICE_USERNAME:?}\",
-    pwd: \"${SERVICE_PASSWORD:?}\",
+    user: \"${APP_USERNAME:?}\",
+    pwd: \"${APP_PASSWORD:?}\",
     roles: [
-       { role: \"readWrite\", db: \"${SERVICE_DB:?}\" }
+       { role: \"readWrite\", db: \"${APP_DB:?}\" }
     ]
 });"
 
