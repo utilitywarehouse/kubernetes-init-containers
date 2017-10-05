@@ -18,6 +18,16 @@ this variable needs to have only secondary nodes, ie starting from 1 (ignoring t
 - https://github.com/utilitywarehouse/kubernetes-manifests/blob/master/dev/energy/gas-smbtos3-mongodb.yaml
 - https://github.com/utilitywarehouse/kubernetes-manifests/blob/master/dev/telecom/bulk-line-test-mongo.yaml
 
+## Tips
+
+Check that your `kubectl version` client version is 1.7 or above.
+
+You can generate keyFile using `openssl rand 741 -base64 | base64 -w0`
+
+Mongodb connection string is in form `[mongodb://][user:pass@]host1[:port1][,host2[:port2],...][/database][?options]`
+
+Exporter can connect to localhost, it's connection string is in `mongob://exporter_username:exporter_password@localhost:27017/admin`
+
 ## Example initContainer
 ```
     initContainers:
