@@ -41,7 +41,7 @@ Exporter needs to connect to localhost, it's connection string is `mongob://expo
           readOnly: true
           mountPath: /etc/secrets-volume
         env:
-        - name: ADMIN_USER
+        - name: ADMIN_USERNAME
           valueFrom:
             secretKeyRef:
               name: gas-smbtos3-secrets
@@ -51,7 +51,7 @@ Exporter needs to connect to localhost, it's connection string is `mongob://expo
             secretKeyRef:
               name: gas-smbtos3-secrets
               key: admin.pass
-        - name: EXPORTER_USER
+        - name: EXPORTER_USERNAME
           valueFrom:
             secretKeyRef:
               name: gas-smbtos3-secrets
@@ -61,7 +61,7 @@ Exporter needs to connect to localhost, it's connection string is `mongob://expo
             secretKeyRef:
               name: gas-smbtos3-secrets
               key: exporter.pass
-        - name: MONGOLIZER_USER
+        - name: MONGOLIZER_USERNAME
           valueFrom:
             secretKeyRef:
               name: gas-smbtos3-secrets
@@ -71,7 +71,7 @@ Exporter needs to connect to localhost, it's connection string is `mongob://expo
             secretKeyRef:
               name: gas-smbtos3-secrets
               key: mongolizer.pass
-        - name: APP_USER
+        - name: APP_USERNAME
           valueFrom:
             secretKeyRef:
               name: gas-smbtos3-secrets
