@@ -37,7 +37,7 @@ sleep 10
 
 echo "creating user ${ADMIN_USERNAME}"
 mongo --eval "
-db.createUser({
+db.getSiblingDB(\"admin\").createUser({
   user: \"${ADMIN_USERNAME:?}\",
   pwd: \"${ADMIN_PASSWORD:?}\",
   roles: [{ 
@@ -59,14 +59,14 @@ db.getSiblingDB(\"admin\").createUser({
 "
 
 mongo --eval "
-db.createUser({
+db.getSiblingDB(\"admin\").createUser({
     user: \"${MONGOLIZER_USERNAME:?}\",
     pwd: \"${MONGOLIZER_PASSWORD:?}\",
     roles: [{ role: \"backup\", db:\"admin\"}]
 });"
 
 mongo --eval "
-db.createUser({
+db.getSiblingDB(\"${APP_DB:?}\").createUser({
     user: \"${APP_USERNAME:?}\",
     pwd: \"${APP_PASSWORD:?}\",
     roles: [
