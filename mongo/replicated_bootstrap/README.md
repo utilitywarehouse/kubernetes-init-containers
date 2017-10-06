@@ -28,6 +28,8 @@ Mongodb connection string is in form `[mongodb://][user:pass@]host1[:port1][,hos
 
 Exporter needs to connect to localhost, it's connection string is `mongob://exporter_username:exporter_password@localhost:27017/admin`
 
+App connection string is in form of:
+`mongodb://APP_USERNAME:APP_PASSWORD@K8S_SERVICE_NAME/DB_NAME?replicaSet=REPLICA_SET_NAME`
 ## Example initContainer
 ```
     initContainers:
