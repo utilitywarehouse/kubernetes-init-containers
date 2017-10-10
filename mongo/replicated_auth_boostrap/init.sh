@@ -1,5 +1,12 @@
 #!/bin/bash
 
+[ -z "$REPLICATION_NODES" ] && echo "Error not set REPLICATION_NODES" && exit 1
+[ -z "$REPL_SET" ] && echo "Error not set REPL_SET" && exit 1
+[ -z "$ADMIN_PASSWORD" ] && echo "Error not set ADMIN_PASSWORD" && exit 1
+[ -z "$EXPORTER_PASSWORD" ] && echo "Error not set EXPORTER_PASSWORD" && exit 1
+[ -z "$MONGOLIZER_PASSWORD" ] && echo "Error not set MONGOLIZER_PASSWORD" && exit 1
+[ -z "$APP_PASSWORD" ] && echo "Error not set APP_PASSWORD" && exit 1
+
 [[ `hostname` =~ -([0-9]+)$ ]] || exit 1
 ordinal=${BASH_REMATCH[1]}
 
@@ -26,7 +33,7 @@ fi
 name=$(hostname -f)
 
 echo "starting bootstrap"
-mongo --eval "
+mongo --quiet --eval "
 rs.initiate( {
    _id : \"${REPL_SET}\",
    members: [ { _id : 0, host : \"${name}\" } ]
@@ -36,7 +43,7 @@ rs.initiate( {
 sleep 10
 
 echo "creating user ${ADMIN_USERNAME}"
-mongo --eval "
+mongo --quiet --eval "
 db.getSiblingDB(\"admin\").createUser({
   user: \"${ADMIN_USERNAME:?}\",
   pwd: \"${ADMIN_PASSWORD:?}\",
@@ -47,7 +54,7 @@ db.getSiblingDB(\"admin\").createUser({
 });
 " 
 
-mongo --eval "
+mongo --quiet --eval "
 db.getSiblingDB(\"admin\").createUser({
     user: \"${EXPORTER_USERNAME:?}\",
     pwd: \"${EXPORTER_PASSWORD:?}\",
@@ -58,14 +65,14 @@ db.getSiblingDB(\"admin\").createUser({
 });
 "
 
-mongo --eval "
+mongo --quiet --eval "
 db.getSiblingDB(\"admin\").createUser({
     user: \"${MONGOLIZER_USERNAME:?}\",
     pwd: \"${MONGOLIZER_PASSWORD:?}\",
     roles: [{ role: \"backup\", db:\"admin\"}]
 });"
 
-mongo --eval "
+mongo --quiet --eval "
 db.getSiblingDB(\"${APP_DB:?}\").createUser({
     user: \"${APP_USERNAME:?}\",
     pwd: \"${APP_PASSWORD:?}\",
@@ -94,5 +101,17 @@ do
     counter=$[$counter +1]
 done
 
+NEWLINE=$'\n'
+script="cfg = rs.conf();$NEWLINE"
+script="$script cfg.members[0].priority = 1;$NEWLINE"
+counter=1
+for node in $nodes
+do
+    member="cfg.members[${counter}].priority = 1;$NEWLINE"
+    script="$script$member"
+    counter=$[$counter +1]
+done 
+script="$script rs.reconfig(cfg);$NEWLINE"
+mongo --eval "$script"
 
 mongod --shutdown
