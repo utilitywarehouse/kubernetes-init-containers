@@ -4,9 +4,9 @@
 [ -z "$REPL_SET" ] && echo "Error not set REPL_SET" && exit 1
 
 TYPE_SVR=""
-if [[ $TYPE != *"config"* ]]; then
+if [[ $TYPE == *"config"* ]]; then
     TYPE_SVR="--configsvr"
-elif [[ $TYPE != *"shard"* ]]; then
+elif [[ $TYPE == *"shard"* ]]; then
     TYPE_SVR="--shardsvr"
 fi
 
@@ -38,7 +38,7 @@ name=$(hostname -f)
 echo "starting bootstrap"
 echo "${REPL_SET}"
 echo "${REPLICATION_NODES}"
-mongo --eval "
+mongo --quiet --eval "
 rs.initiate( {
    _id : \"${REPL_SET}\",
    members: [ { _id : 0, host : \"${name}\" } ]
@@ -76,6 +76,6 @@ do
     counter=$[$counter +1]
 done 
 script="$script rs.reconfig(cfg);$NEWLINE"
-mongo --eval "$script"
+mongo --quiet --eval "$script"
 
 mongod --shutdown --dbpath ${DB_ROOT} 
