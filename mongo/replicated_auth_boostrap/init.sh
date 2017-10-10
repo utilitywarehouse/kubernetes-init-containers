@@ -33,7 +33,7 @@ fi
 name=$(hostname -f)
 
 echo "starting bootstrap"
-mongo --eval "
+mongo --quiet --eval "
 rs.initiate( {
    _id : \"${REPL_SET}\",
    members: [ { _id : 0, host : \"${name}\" } ]
@@ -43,7 +43,7 @@ rs.initiate( {
 sleep 10
 
 echo "creating user ${ADMIN_USERNAME}"
-mongo --eval "
+mongo --quiet --eval "
 db.getSiblingDB(\"admin\").createUser({
   user: \"${ADMIN_USERNAME:?}\",
   pwd: \"${ADMIN_PASSWORD:?}\",
@@ -54,7 +54,7 @@ db.getSiblingDB(\"admin\").createUser({
 });
 " 
 
-mongo --eval "
+mongo --quiet --eval "
 db.getSiblingDB(\"admin\").createUser({
     user: \"${EXPORTER_USERNAME:?}\",
     pwd: \"${EXPORTER_PASSWORD:?}\",
@@ -65,14 +65,14 @@ db.getSiblingDB(\"admin\").createUser({
 });
 "
 
-mongo --eval "
+mongo --quiet --eval "
 db.getSiblingDB(\"admin\").createUser({
     user: \"${MONGOLIZER_USERNAME:?}\",
     pwd: \"${MONGOLIZER_PASSWORD:?}\",
     roles: [{ role: \"backup\", db:\"admin\"}]
 });"
 
-mongo --eval "
+mongo --quiet --eval "
 db.getSiblingDB(\"${APP_DB:?}\").createUser({
     user: \"${APP_USERNAME:?}\",
     pwd: \"${APP_PASSWORD:?}\",
