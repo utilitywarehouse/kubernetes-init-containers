@@ -30,6 +30,7 @@ Exporter needs to connect to localhost, it's connection string is `mongob://expo
 
 App connection string is in form of:
 `mongodb://APP_USERNAME:APP_PASSWORD@K8S_SERVICE_NAME/DB_NAME?replicaSet=REPLICA_SET_NAME`
+
 ## Example initContainer
 ```
     initContainers:
