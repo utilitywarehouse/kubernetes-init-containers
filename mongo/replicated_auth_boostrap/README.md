@@ -7,15 +7,20 @@ It creates 4 users: metrics exporter, mongolizer (backups), admin (root) and app
 
 App user gets rights to APP_DB and should be used in your application.
 
-
 `REPLICATION_NODES` are in format `hostname:port,hostname:port`
 this variable needs to have only secondary nodes, ie starting from 1 (ignoring the 0th, which will be the primary node)
 
 `hostname` - needs to be resolvable by DNS.
 
+## Build 
+```
+
+docker build -t registry.uw.systems/utilitywarehouse/uw-mongo-repl-bootstrap:latest .
+docker push  registry.uw.systems/utilitywarehouse/uw-mongo-repl-bootstrap:latest 
+
+```
 ## Full examples
 
-- https://github.com/utilitywarehouse/kubernetes-manifests/blob/master/dev/energy/gas-smbtos3-mongodb.yaml
 - https://github.com/utilitywarehouse/kubernetes-manifests/blob/master/dev/telecom/bulk-line-test-mongo.yaml
 
 ## Tips
@@ -30,6 +35,7 @@ Exporter needs to connect to localhost, it's connection string is `mongob://expo
 
 App connection string is in form of:
 `mongodb://APP_USERNAME:APP_PASSWORD@K8S_SERVICE_NAME/DB_NAME?replicaSet=REPLICA_SET_NAME`
+
 ## Example initContainer
 ```
     initContainers:
@@ -43,31 +49,16 @@ App connection string is in form of:
           readOnly: true
           mountPath: /etc/secrets-volume
         env:
-        - name: ADMIN_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: gas-smbtos3-secrets
-              key: admin.user
         - name: ADMIN_PASSWORD
           valueFrom:
             secretKeyRef:
               name: gas-smbtos3-secrets
               key: admin.pass
-        - name: EXPORTER_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: gas-smbtos3-secrets
-              key: exporter.user
         - name: EXPORTER_PASSWORD
           valueFrom:
             secretKeyRef:
               name: gas-smbtos3-secrets
               key: exporter.pass
-        - name: MONGOLIZER_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: gas-smbtos3-secrets
-              key: mongolizer.user
         - name: MONGOLIZER_PASSWORD
           valueFrom:
             secretKeyRef:
