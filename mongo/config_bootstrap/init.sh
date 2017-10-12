@@ -100,9 +100,17 @@ echo "shard config init"
 nodes=$(echo $SHARD_NODES | tr "," "\n")
 for node in $nodes
 do
-    script="mongo localhost:27018 --quiet --eval 'sh.addShard(\"${node}\")'"
-    out=$(eval "$script")
-    echo $out
+    while true
+    do
+        script="mongo localhost:27018 --quiet --eval 'sh.addShard(\"${node}\")'"
+        out=$(eval "$script")
+        echo $out
+        if [[ $out == *"shardAdded"* ]]; then
+            break
+        fi
+        echo "retrying ${node}"
+        sleep 5
+    done
 done
 
 mongo localhost:27018 --quiet --eval "sh.enableSharding(\"${APP_DB}\")"
