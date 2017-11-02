@@ -21,7 +21,7 @@ docker push  registry.uw.systems/utilitywarehouse/uw-mongo-repl-bootstrap:latest
 ```
 ## Full examples
 
-- https://github.com/utilitywarehouse/kubernetes-manifests/blob/master/dev/telecom/bulk-line-test-mongo.yaml
+- https://github.com/utilitywarehouse/kubernetes-manifests/blob/master/dev/telecom/broadband-availability-api-mongo.yaml
 
 ## Tips
 
