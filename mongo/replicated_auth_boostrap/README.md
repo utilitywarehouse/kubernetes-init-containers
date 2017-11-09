@@ -5,10 +5,10 @@ StatefulSet must have `podManagementPolicy: Parallel` as the 0th pod will wait f
 
 It creates 4 users: metrics exporter, mongolizer (backups), admin (root) and app user.
 
-If `ADMIN_USERNAME` env is not specified, by default creates `admin` user
-If `EXPORTER_USERNAME` env is not specified, by default creates `exporter` user
-If `MONGOLIZER_USERNAME` env is not specified, by default creates `mongolizer` user
-If `APP_USERNAME` env is not specified, by default creates `app` user
+- If `ADMIN_USERNAME` env is not specified, by default creates `admin` user
+- If `EXPORTER_USERNAME` env is not specified, by default creates `exporter` user
+- If `MONGOLIZER_USERNAME` env is not specified, by default creates `mongolizer` user
+- If `APP_USERNAME` env is not specified, by default creates `app` user
 
 App user gets rights to APP_DB and should be used in your application.
 
