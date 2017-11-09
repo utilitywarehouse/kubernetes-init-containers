@@ -5,6 +5,11 @@ StatefulSet must have `podManagementPolicy: Parallel` as the 0th pod will wait f
 
 It creates 4 users: metrics exporter, mongolizer (backups), admin (root) and app user.
 
+If `ADMIN_USERNAME` env is not specified, by default creates `admin` user
+If `EXPORTER_USERNAME` env is not specified, by default creates `exporter` user
+If `MONGOLIZER_USERNAME` env is not specified, by default creates `mongolizer` user
+If `APP_USERNAME` env is not specified, by default creates `app` user
+
 App user gets rights to APP_DB and should be used in your application.
 
 `REPLICATION_NODES` are in format `hostname:port,hostname:port`
@@ -21,7 +26,7 @@ docker push  registry.uw.systems/utilitywarehouse/uw-mongo-repl-bootstrap:latest
 ```
 ## Full examples
 
-- https://github.com/utilitywarehouse/kubernetes-manifests/blob/master/dev/telecom/broadband-availability-api-mongo.yaml
+- https://github.com/utilitywarehouse/kubernetes-manifests/blob/master/dev/telecom/mso-mssql-bridge-mongo.yaml
 
 ## Tips
 
@@ -35,6 +40,8 @@ Exporter needs to connect to localhost, it's connection string is `mongob://expo
 
 App connection string is in form of:
 `mongodb://APP_USERNAME:APP_PASSWORD@K8S_SERVICE_NAME/DB_NAME?replicaSet=REPLICA_SET_NAME`
+
+Consider doing writes with `w:"majority"` writeConcern. More info https://docs.mongodb.com/manual/reference/write-concern/#writeconcern._dq_majority_dq_.
 
 Other useful tips: https://docs.mongodb.com/manual/administration/production-checklist-operations/#replication
 
