@@ -1,0 +1,17 @@
+version: 2
+jobs:
+  build:
+    working_directory: /go/src/github.com/utilitywarehouse/kubernetes-init-containers
+    docker:
+    - image: circleci/golang:1.9
+    steps:
+      - checkout
+      - run: git config --global url."https://$GITHUB_TOKEN:x-oauth-basic@github.com/".insteadOf "https://github.com/"
+      - setup_remote_docker:
+          version: 17.10.0-ce
+      - run: make all
+workflows:
+  version: 2
+  development:
+    jobs:
+      - build
