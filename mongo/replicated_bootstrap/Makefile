@@ -1,3 +1,3 @@
-SERVICE = uw-mongo-replicated
+SERVICE = uw-mongo-repl
 
 include ../../include.mk

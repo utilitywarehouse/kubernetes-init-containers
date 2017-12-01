@@ -5,8 +5,8 @@ jobs:
     docker:
     - image: circleci/golang:1.9
     steps:
-      - checkout
       - run: git config --global url."https://$GITHUB_TOKEN:x-oauth-basic@github.com/".insteadOf "https://github.com/"
+      - checkout
       - setup_remote_docker:
           version: 17.10.0-ce
       - run: make all

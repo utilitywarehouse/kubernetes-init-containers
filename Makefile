@@ -10,7 +10,11 @@ ifeq ($(GIT_HASH),)
   GIT_HASH := $(shell git rev-parse HEAD)
 endif
 
-all: 
+ci-docker-auth:
+	@echo "Logging in to $(DOCKER_REGISTRY) as $(DOCKER_ID)"
+	@docker login -u $(DOCKER_ID) -p $(DOCKER_PASSWORD) $(DOCKER_REGISTRY)
+
+all: ci-docker-auth
 	$(MAKE) -C mongo/config_bootstrap ci-docker-build
 	$(MAKE) -C mongo/replicated_auth_boostrap ci-docker-build
 	$(MAKE) -C mongo/shard_bootstrap ci-docker-build
