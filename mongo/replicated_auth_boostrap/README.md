@@ -20,8 +20,7 @@ this variable needs to have only secondary nodes, ie starting from 1 (ignoring t
 ## Build 
 ```
 
-docker build -t registry.uw.systems/utilitywarehouse/uw-mongo-repl-bootstrap:latest .
-docker push  registry.uw.systems/utilitywarehouse/uw-mongo-repl-bootstrap:latest 
+make 
 
 ```
 ## Full examples

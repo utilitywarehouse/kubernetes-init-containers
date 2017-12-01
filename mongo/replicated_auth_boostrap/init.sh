@@ -15,6 +15,10 @@ if [[ $ordinal -ne 0 ]]; then
     exit 0
 fi
 
+if [ -f ${DB_ROOT}/mongod.lock ]; then
+    exit 0
+fi
+
 gosu root mongod --transitionToAuth --clusterAuthMode keyFile --keyFile ${KEY_FILE} --replSet ${REPL_SET} --fork --logpath ${DB_ROOT}/init-admin.log
 if [ $? -ne 0 ]; then
     cat ${DB_ROOT}/init-admin.log
