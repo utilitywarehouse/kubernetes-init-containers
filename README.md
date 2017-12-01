@@ -8,12 +8,12 @@ init-containers to perform setup before the main pod containers are started.
 
 ### Replicated mongo
 
-- uw-mongo-repl-bootstrap, bootstrap replicated mongo with authentication enabled [More info](./mongo/replicated_auth_boostrap/README.md)
+- uw-mongo-repl-bootstrap docker image, bootstraps replicated mongo with authentication enabled [More info](./mongo/replicated_auth_boostrap/README.md)
 
 ### Sharded mongo 
-- uw-mongo-config image, bootstraps config server [More info](./mongo/config_bootstrap/README.md)
-- uw-mongo-shard image, bootstraps shard server [More info](./mongo/shard_bootsrap/README.md)
+- uw-mongo-config docker image, bootstraps config server [More info](./mongo/config_bootstrap/README.md)
+- uw-mongo-shard docker image, bootstraps shard server [More info](./mongo/shard_bootstrap/README.md)
 
 ## Build
 
-Circle CI builds and pushes all images into docker registry
+Circle CI builds and pushes images into docker registry
