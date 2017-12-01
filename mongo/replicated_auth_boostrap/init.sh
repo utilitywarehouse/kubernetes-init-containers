@@ -23,7 +23,7 @@ if [[ ${SKIP_BOOTSTRAP} != *"false"* ]]; then
     exit 0
 fi
 
-sudo chown -R root: ${DB_ROOT}
+gosu root chown -R root: ${DB_ROOT}
 
 gosu root mongod --transitionToAuth --clusterAuthMode keyFile --keyFile ${KEY_FILE} --replSet ${REPL_SET} --fork --logpath ${DB_ROOT}/init-admin.log
 if [ $? -ne 0 ]; then
