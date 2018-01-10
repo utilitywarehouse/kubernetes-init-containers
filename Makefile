@@ -19,4 +19,5 @@ all: ci-docker-auth
 	$(MAKE) -C mongo/replicated_auth_boostrap ci-docker-build
 	$(MAKE) -C mongo/shard_bootstrap ci-docker-build
 	$(MAKE) -C mongo/replicated_bootstrap ci-docker-build
+	$(MAKE) -C mongo/ensure-cluster-user ci-docker-build
 
