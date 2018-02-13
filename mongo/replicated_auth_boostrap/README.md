@@ -17,6 +17,8 @@ this variable needs to have only secondary nodes, ie starting from 1 (ignoring t
 
 `hostname` - needs to be resolvable by DNS.
 
+Optionally, members can be tagged alike by setting the `TAGS` env var, e.g. `TAGS="read=enabled;dc=east"`.
+
 ## Build 
 ```
 
