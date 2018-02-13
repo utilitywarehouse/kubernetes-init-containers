@@ -124,4 +124,18 @@ done
 script="$script rs.reconfig(cfg);$NEWLINE"
 mongo --eval "$script"
 
+
+if [[ "$TAGS" ]]; then
+    script="cfg = rs.conf();$NEWLINE"
+    for i in `seq 0 $((counter-1))`; do
+        IFS=';' read -ra TAGS_ARR <<< "$TAGS"
+        for t in "${TAGS_ARR[@]}"; do
+            script="$script cfg.members[$i].tags[\"${t%%=*}\"]=\"${t#*=}\";$NEWLINE"
+        done
+    done
+    script="$script rs.reconfig(cfg);$NEWLINE"
+    mongo --eval "$script"
+fi
+
+
 mongod --shutdown
