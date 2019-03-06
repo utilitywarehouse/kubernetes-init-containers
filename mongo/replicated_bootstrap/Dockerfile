@@ -1,4 +1,4 @@
-from mongo:3.4
+from mongo:4.0
 
 env REPLICATION_NODES=${REPLICATION_NODES}
 env REPL_SET=${REPL_SET}

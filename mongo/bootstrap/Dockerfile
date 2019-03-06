@@ -1,4 +1,4 @@
-from mongo:3.4
+from mongo:4.0
 
 env USERNAME=${USERNAME:-testuser}
 env PASSWORD=${PASSWORD:-testpassword}
