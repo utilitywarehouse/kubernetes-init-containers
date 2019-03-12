@@ -1,4 +1,4 @@
-from mongo:3.4
+from mongo:4.0
 
 env ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
 env ADMIN_PASSWORD=${ADMIN_PASSWORD}

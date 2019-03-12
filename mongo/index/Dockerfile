@@ -1,4 +1,4 @@
-from mongo:3.4
+from mongo:4.0
 
 env USERNAME=MONGO_HOST=${MONGO_HOST:-localhost} \
 	     MONGO_PORT=${MONGO_PORT:-27017} \
