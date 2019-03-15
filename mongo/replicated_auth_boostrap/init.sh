@@ -79,7 +79,7 @@ mongo --quiet --eval "
 db.getSiblingDB(\"admin\").createUser({
     user: \"${MONGOLIZER_USERNAME:?}\",
     pwd: \"${MONGOLIZER_PASSWORD:?}\",
-    roles: [\"readWriteAnyDatabase\"]
+    roles: [\"backup\"]
 });"
 
 mongo --quiet --eval "
