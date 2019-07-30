@@ -76,7 +76,7 @@ do
     echo "adding replica ${node}, ${counter}"
     while true
     do
-        script="mongo --quiet --eval -u ${ADMIN_USERNAME} -p ${ADMIN_PASSWORD} 'rs.add({_id: ${counter}, host:\"${node}\", priority: 0.99})'"
+        script="mongo -u ${ADMIN_USERNAME} -p ${ADMIN_PASSWORD} --quiet --eval 'rs.add({_id: ${counter}, host:\"${node}\", priority: 0.99})'"
         out=$(eval "$script")
         echo $out
         if [[ $out != *"NodeNotFound"* ]]; then
@@ -100,6 +100,6 @@ do
     counter=$[$counter +1]
 done 
 script="$script rs.reconfig(cfg);$NEWLINE"
-mongo --quiet --eval -u ${ADMIN_USERNAME} -p ${ADMIN_PASSWORD} "$script"
+mongo -u ${ADMIN_USERNAME} -p ${ADMIN_PASSWORD} --quiet --eval "$script"
 
 mongod --shutdown --dbpath ${DB_ROOT} 
