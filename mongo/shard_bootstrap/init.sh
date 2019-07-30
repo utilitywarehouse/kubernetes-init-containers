@@ -68,6 +68,15 @@ db.getSiblingDB(\"admin\").createUser({
     roles: [{ role: \"backup\", db:\"admin\"}]
 });"
 
+mongo --quiet --eval "
+db.getSiblingDB(\"${APP_DB:?}\").createUser({
+    user: \"${APP_USERNAME:?}\",
+    pwd: \"${APP_PASSWORD:?}\",
+    roles: [
+       { role: \"readWrite\", db: \"${APP_DB:?}\" }
+    ]
+});"
+
 # Add each node from $REPLICATION_NODES to the cluster.
 nodes=$(echo $REPLICATION_NODES | tr "," "\n")
 counter=1
