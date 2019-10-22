@@ -1,6 +1,6 @@
-from mongo:4.0
+FROM mongo:4.2
 
-env USERNAME=${USERNAME:-test_role_username} \
+ENV USERNAME=${USERNAME:-test_role_username} \
 	     PASSWORD=${PASSWORD:-test_role_password} \
 	     ADMIN_DB=${ADMIN_DB:-admin} \
 	     USER_DB=${USER_DB:-testdb} \
@@ -9,7 +9,7 @@ env USERNAME=${USERNAME:-test_role_username} \
 	     MONGO_HOST=${MONGO_HOST:-localhost} \
 	     MONGO_PORT=${MONGO_PORT:-27017}
 
-copy init.sh /init.sh
-user root
-run chmod +x /init.sh
-entrypoint "/init.sh"
+COPY init.sh /init.sh
+USER root
+RUN chmod +x /init.sh
+ENTRYPOINT "/init.sh"

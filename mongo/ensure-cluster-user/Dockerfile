@@ -1,4 +1,4 @@
-FROM mongo:4.0
+FROM mongo:4.2
 
 ENV SERVICE_NAME=${SERVICE_NAME:-mongo} \
     REPLICA_SET=${REPLICA_SET} \

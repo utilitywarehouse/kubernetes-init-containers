@@ -1,11 +1,11 @@
-from mongo:4.0
+FROM mongo:4.2
 
-env REPLICATION_NODES=${REPLICATION_NODES}
-env REPL_SET=${REPL_SET}
-env KEY_FILE=${KEY_FILE:-/etc/secrets-volume/internal-auth-mongodb-keyfile}
-env DB_ROOT=${DB_ROOT:-/data/db}
+ENV REPLICATION_NODES=${REPLICATION_NODES}
+ENV REPL_SET=${REPL_SET}
+ENV KEY_FILE=${KEY_FILE:-/etc/secrets-volume/internal-auth-mongodb-keyfile}
+ENV DB_ROOT=${DB_ROOT:-/data/db}
 
-copy init.sh /init.sh
-user root
-run chmod +x /init.sh
-entrypoint "/init.sh"
+COPY init.sh /init.sh
+USER root
+RUN chmod +x /init.sh
+ENTRYPOINT "/init.sh"
