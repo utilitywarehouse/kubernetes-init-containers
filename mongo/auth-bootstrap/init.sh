@@ -43,6 +43,15 @@ db.getSiblingDB(\"admin\").createUser({
 "
 
 mongo --quiet --eval "
+db.getSiblingDB(\"${APP_DB:?}\").createUser({
+    user: \"${APP_USERNAME:?}\",
+    pwd: \"${APP_PASSWORD:?}\",
+    roles: [
+       { role: \"readWrite\", db: \"${APP_DB:?}\" }
+    ]
+});"
+
+mongo --quiet --eval "
 db.getSiblingDB(\"admin\").createUser({
     user: \"${MONGOLIZER_USERNAME:?}\",
     pwd: \"${MONGOLIZER_PASSWORD:?}\",
