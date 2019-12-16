@@ -43,12 +43,32 @@ rs.initiate( {
 # wait for mongodb to understand that it is master
 sleep 10
 
+echo "rs config init ${name}"
+nodes=$(echo $REPLICATION_NODES | tr "," "\n")
+counter=1
+for node in $nodes
+do
+    echo "adding replica ${node}, ${counter}"
+    while true
+    do
+        script="mongo --quiet --eval 'rs.add({_id: ${counter}, host:\"${node}\", priority: 0.99})'"
+        out=$(eval "$script")
+        echo $out
+        if [[ $out != *"NodeNotFound"* ]]; then
+            break
+        fi
+        echo "retrying ${node}"
+        sleep 5
+    done
+    counter=$[$counter +1]
+done
+
 # Seriously Mongo doesn't allow you to add shards to config server directly
 # you have to spin up a mongos router to do that
 echo "Starting mongos instance"
 
 set +e
-gosu root mongos --transitionToAuth --keyFile ${KEY_FILE} --logpath ${DB_ROOT}/init-mongos.log --port 27018 --configdb ${REPL_SET}/localhost:27017 &
+gosu root mongos --transitionToAuth --keyFile ${KEY_FILE} --logpath ${DB_ROOT}/init-mongos.log --port 27018 --configdb ${REPL_SET}/localhost:27017
 if [ $? -ne 0 ]; then
     cat ${DB_ROOT}/init-mongos.log
     exit 1
@@ -115,25 +135,6 @@ done
 
 mongo localhost:27018 --quiet --eval "sh.enableSharding(\"${APP_DB}\")"
 
-echo "rs config init ${name}"
-nodes=$(echo $REPLICATION_NODES | tr "," "\n")
-counter=1
-for node in $nodes
-do
-    echo "adding replica ${node}, ${counter}"
-    while true
-    do
-        script="mongo --quiet --eval 'rs.add({_id: ${counter}, host:\"${node}\", priority: 0.99})'"
-        out=$(eval "$script")
-        echo $out
-        if [[ $out != *"NodeNotFound"* ]]; then
-            break
-        fi
-        echo "retrying ${node}"
-        sleep 5
-    done
-    counter=$[$counter +1]
-done
 
 NEWLINE=$'\n'
 script="cfg = rs.conf();$NEWLINE"
