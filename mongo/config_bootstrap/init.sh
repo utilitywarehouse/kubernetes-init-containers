@@ -16,7 +16,7 @@ if [[ $ordinal -ne 0 ]]; then
     exit 0
 fi
 
-gosu root mongod --configsvr --transitionToAuth --keyFile ${KEY_FILE} --replSet ${REPL_SET} --fork --logpath ${DB_ROOT}/init-admin.log --port 27017 --dbpath ${DB_ROOT}
+gosu root mongod --configsvr --transitionToAuth --keyFile ${KEY_FILE} --replSet ${REPL_SET} --fork --logpath ${DB_ROOT}/init-admin.log --port 27017 --dbpath ${DB_ROOT} --bind_ip localhost
 if [ $? -ne 0 ]; then
     cat ${DB_ROOT}/init-admin.log
     exit 1
