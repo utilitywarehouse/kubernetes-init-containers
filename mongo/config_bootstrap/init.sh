@@ -48,14 +48,14 @@ sleep 10
 echo "Starting mongos instance"
 
 set +e
-gosu root mongos --transitionToAuth --keyFile ${KEY_FILE} --fork --logpath ${DB_ROOT}/init-mongos.log --port 27018 --configdb ${REPL_SET}/localhost:27017
+gosu root mongos --transitionToAuth --keyFile ${KEY_FILE} --logpath ${DB_ROOT}/init-mongos.log --port 27018 --configdb ${REPL_SET}/localhost:27017 &
 if [ $? -ne 0 ]; then
     cat ${DB_ROOT}/init-mongos.log
     exit 1
 fi
 
 set -e
-sleep 15
+sleep 30
 
 echo "creating user ${ADMIN_USERNAME}"
 mongo localhost:27018 --quiet --eval "
