@@ -27,6 +27,8 @@ echo "init"
 set -e
 sleep 30
 
+mongo --eval='printjson(rs.status())'
+
 # If the cluster has already been initialised, exit
 res="$(mongo --quiet --eval='printjson(rs.status())')"
 echo $res
