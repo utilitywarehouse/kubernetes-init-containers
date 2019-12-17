@@ -52,8 +52,9 @@ do
     do
         script="mongo --quiet --eval 'rs.add({_id: ${counter}, host:\"${node}\", priority: 0.99})'"
         out=$(eval "$script")
-        echo $out
+        echo $script $out
         if [[ $out != *"NodeNotFound"* ]]; then
+            echo $out
             break
         fi
 
