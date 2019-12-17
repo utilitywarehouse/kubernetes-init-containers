@@ -37,7 +37,7 @@ echo "initialising replicaset with 0th node"
 mongo --quiet --eval "
 rs.initiate( {
    _id : \"${REPL_SET}\",
-   members: [ { _id : 0, host : \"${name}\" } ]
+   members: [ { _id : 0, host : \"${name}:27018\" } ]
 })"
 
 # Wait for MongoDB to become PRIMARY
@@ -80,7 +80,7 @@ do
     echo "adding replica ${counter} ${node}"
     while true
     do
-        script="mongo --quiet --eval 'rs.add({_id: ${counter}, host:\"${node}\", priority: 0.99})'"
+        script="mongo --quiet --eval 'rs.add({_id: ${counter}, host:\"${node}:27018\", priority: 0.99})'"
         out=$(eval "$script")
         echo $out
         if [[ $out != *"NodeNotFound"* ]]; then
