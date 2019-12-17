@@ -22,26 +22,19 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-echo "init"
-
 set -e
 sleep 30
 
-mongo --eval='printjson(rs.status())'
-
 # If the cluster has already been initialised, exit
-res="$(mongo --quiet --eval='printjson(rs.status())')"
-echo $res
+res="$(mongo --port 27018 --quiet --eval='printjson(rs.status())')"
 if [[ $res != *"NotYetInitialized"* ]]; then
     exit 0
 fi
 
-echo "cont"
-
 name=$(hostname -f)
 
 echo "initialising replicaset with 0th node"
-mongo --quiet --eval "
+mongo --port 27018 --quiet --eval "
 rs.initiate( {
    _id : \"${REPL_SET}\",
    members: [ { _id : 0, host : \"${name}:27018\" } ]
@@ -51,7 +44,7 @@ rs.initiate( {
 sleep 10
 
 echo "creating user ${ADMIN_USERNAME}"
-mongo --quiet --eval "
+mongo --port 27018 --quiet --eval "
 db.getSiblingDB(\"admin\").createUser({
   user: \"${ADMIN_USERNAME:?}\",
   pwd: \"${ADMIN_PASSWORD:?}\",
@@ -62,7 +55,7 @@ db.getSiblingDB(\"admin\").createUser({
 });"
 
 echo "creating user ${EXPORTER_USERNAME}"
-mongo --quiet --eval "
+mongo --port 27018 --quiet --eval "
 db.getSiblingDB(\"admin\").createUser({
     user: \"${EXPORTER_USERNAME:?}\",
     pwd: \"${EXPORTER_PASSWORD:?}\",
@@ -73,7 +66,7 @@ db.getSiblingDB(\"admin\").createUser({
 });"
 
 echo "creating user ${MONGOLIZER_USERNAME}"
-mongo --quiet --eval "
+mongo --port 27018 --quiet --eval "
 db.getSiblingDB(\"admin\").createUser({
     user: \"${MONGOLIZER_USERNAME:?}\",
     pwd: \"${MONGOLIZER_PASSWORD:?}\",
@@ -87,7 +80,7 @@ do
     echo "adding replica ${counter} ${node}"
     while true
     do
-        script="mongo --quiet --eval 'rs.add({_id: ${counter}, host:\"${node}:27018\", priority: 0.99})'"
+        script="mongo --port 27018 --quiet --eval 'rs.add({_id: ${counter}, host:\"${node}:27018\", priority: 0.99})'"
         out=$(eval "$script")
         echo $out
         if [[ $out != *"NodeNotFound"* ]]; then
@@ -113,7 +106,7 @@ do
     counter=$[$counter +1]
 done 
 script="$script rs.reconfig(cfg);$NEWLINE"
-mongo --quiet --eval "$script"
+mongo --port 27018 --quiet --eval "$script"
 
 echo "initialisation complete"
-mongod --shutdown --dbpath ${DB_ROOT} 
+mongod --port 27018 --shutdown --dbpath ${DB_ROOT} 
