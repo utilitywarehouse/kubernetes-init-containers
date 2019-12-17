@@ -109,4 +109,4 @@ script="$script rs.reconfig(cfg);$NEWLINE"
 mongo --port 27018 --quiet --eval "$script"
 
 echo "initialisation complete"
-mongod --port 27018 --shutdown --dbpath ${DB_ROOT} 
+mongod --port 27018 --shutdown --dbpath ${DB_ROOT}

@@ -15,7 +15,7 @@ if [[ $ordinal -ne 0 ]]; then
 fi
 
 # https://docs.mongodb.com/manual/tutorial/deploy-sharded-cluster-with-keyfile-access-control/
-gosu root mongod --configsvr --transitionToAuth --keyFile ${KEY_FILE} --replSet ${REPL_SET} --logpath ${DB_ROOT}/init-admin.log --dbpath ${DB_ROOT} -vv &
+gosu root mongod --configsvr --transitionToAuth --keyFile ${KEY_FILE} --replSet ${REPL_SET} --fork --logpath ${DB_ROOT}/init-admin.log --dbpath ${DB_ROOT}
 if [ $? -ne 0 ]; then
     cat ${DB_ROOT}/init-admin.log
     exit 1
@@ -101,4 +101,4 @@ script="$script rs.reconfig(cfg);$NEWLINE"
 mongo --port 27019 --eval "$script"
 
 echo "initialisation complete"
-mongo --port 27019 --shutdown
+mongo --port 27019 --shutdown --dbpath ${DB_ROOT}
