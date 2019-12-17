@@ -52,9 +52,8 @@ do
     do
         script="mongo --quiet --eval 'rs.add({_id: ${counter}, host:\"${node}\", priority: 0.99})'"
         out=$(eval "$script")
-        echo $script $out
+        echo $out
         if [[ $out != *"NodeNotFound"* ]]; then
-            echo $out
             break
         fi
 
@@ -88,8 +87,7 @@ db.getSiblingDB(\"admin\").createUser({
 	role: \"root\",
 	db: \"admin\"
   }]
-});
-"
+});"
 
 echo "creating user ${EXPORTER_USERNAME}"
 mongo --quiet --eval "
@@ -100,11 +98,7 @@ db.getSiblingDB(\"admin\").createUser({
         { role: \"clusterMonitor\", db: \"admin\" },
         { role: \"read\", db: \"local\" }
     ]
-});
-"
+});"
 
 echo "initialisation complete"
-
-# Wait logs to be collected before the pod is terminated
-sleep 10
 mongod --shutdown
