@@ -12,11 +12,12 @@
 [[ `hostname` =~ -([0-9]+)$ ]] || exit 1
 ordinal=${BASH_REMATCH[1]}
 
-# Execute user creation and replication setup on the first node only
+# Only execute on the 0th node
 if [[ $ordinal -ne 0 ]]; then
     exit 0
 fi
 
+# https://docs.mongodb.com/manual/tutorial/deploy-sharded-cluster-with-keyfile-access-control/
 gosu root mongod --configsvr --transitionToAuth --keyFile ${KEY_FILE} --replSet ${REPL_SET} --fork --logpath ${DB_ROOT}/init-admin.log --port 27017 --dbpath ${DB_ROOT}
 if [ $? -ne 0 ]; then
     cat ${DB_ROOT}/init-admin.log
@@ -26,7 +27,7 @@ fi
 set -e
 sleep 30
 
-# check if replication is initialized 
+# If the cluster has already been initialised, exit
 res="$(mongo --quiet --eval='printjson(rs.status())')"
 if [[ $res != *"NotYetInitialized"* ]]; then
     exit 0
@@ -34,7 +35,7 @@ fi
 
 name=$(hostname -f)
 
-echo "starting bootstrap"
+echo "initialising replicaset with 0th node"
 mongo --quiet --eval "
 rs.initiate( {
    _id : \"${REPL_SET}\",
@@ -42,82 +43,10 @@ rs.initiate( {
    members: [ { _id : 0, host : \"${name}\" } ]
 })"
 
-# wait for mongodb to understand that it is master
+# Wait for MongoDB to become PRIMARY
 sleep 10
 
-# Seriously Mongo doesn't allow you to add shards to config server directly
-# you have to spin up a mongos router to do that
-echo "Starting mongos instance"
-
-set +e
-gosu root mongos --transitionToAuth --keyFile ${KEY_FILE} --fork --logpath ${DB_ROOT}/init-mongos.log --port 27018 --configdb ${REPL_SET}/localhost:27017
-if [ $? -ne 0 ]; then
-    cat ${DB_ROOT}/init-mongos.log
-    exit 1
-fi
-
-set -e
-sleep 15
-
-echo "creating user ${ADMIN_USERNAME}"
-mongo localhost:27018 --quiet --eval "
-db.getSiblingDB(\"admin\").createUser({
-  user: \"${ADMIN_USERNAME:?}\",
-  pwd: \"${ADMIN_PASSWORD:?}\",
-  roles: [{ 
-	role: \"root\",
-	db: \"admin\"
-  }]
-});
-" 
-
-mongo localhost:27018 --quiet --eval "
-db.getSiblingDB(\"admin\").createUser({
-    user: \"${EXPORTER_USERNAME:?}\",
-    pwd: \"${EXPORTER_PASSWORD:?}\",
-    roles: [
-        { role: \"clusterMonitor\", db: \"admin\" },
-        { role: \"read\", db: \"local\" }
-    ]
-});
-"
-
-mongo localhost:27018 --quiet --eval "
-db.getSiblingDB(\"admin\").createUser({
-    user: \"${MONGOLIZER_USERNAME:?}\",
-    pwd: \"${MONGOLIZER_PASSWORD:?}\",
-    roles: [{ role: \"backup\", db:\"admin\"}]
-});"
-
-mongo localhost:27018 --quiet --eval "
-db.getSiblingDB(\"${APP_DB:?}\").createUser({
-    user: \"${APP_USERNAME:?}\",
-    pwd: \"${APP_PASSWORD:?}\",
-    roles: [
-       { role: \"readWrite\", db: \"${APP_DB:?}\" }
-    ]
-});"
-
-echo "shard config init" 
-nodes=$(echo $SHARD_NODES | tr "," "\n")
-for node in $nodes
-do
-    while true
-    do
-        script="mongo localhost:27018 --quiet --eval 'sh.addShard(\"${node}\")'"
-        out=$(eval "$script")
-        echo $out
-        if [[ $out == *"shardAdded"* ]]; then
-            break
-        fi
-        echo "retrying ${node}"
-        sleep 5
-    done
-done
-
-mongo localhost:27018 --quiet --eval "sh.enableSharding(\"${APP_DB}\")"
-
-echo "rs config init ${name}"
+echo "adding replication nodes"
 nodes=$(echo $REPLICATION_NODES | tr "," "\n")
 counter=1
 for node in $nodes
@@ -131,12 +60,14 @@ do
         if [[ $out != *"NodeNotFound"* ]]; then
             break
         fi
+
         echo "retrying ${node}"
         sleep 5
     done
     counter=$[$counter +1]
 done
 
+echo "reconfiguring the replicaset with all replication nodes"
 NEWLINE=$'\n'
 script="cfg = rs.conf();$NEWLINE"
 script="$script cfg.members[0].priority = 1;$NEWLINE"
@@ -149,5 +80,7 @@ do
 done 
 script="$script rs.reconfig(cfg);$NEWLINE"
 mongo --eval "$script"
+
+# TODO(kaperys) Can I add users here (directly to the config server)?
 
 mongod --shutdown
