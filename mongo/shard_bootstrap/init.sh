@@ -80,7 +80,7 @@ do
     echo "adding replica ${counter} ${node}"
     while true
     do
-        script="mongo --port 27018 --quiet --eval 'rs.add({_id: ${counter}, host:\"${node}:27018\", priority: 0.99})'"
+        script="mongo --port 27018 --quiet --eval 'rs.add({_id: ${counter}, host:\"${node}\", priority: 0.99})'"
         out=$(eval "$script")
         echo $out
         if [[ $out != *"NodeNotFound"* ]]; then
