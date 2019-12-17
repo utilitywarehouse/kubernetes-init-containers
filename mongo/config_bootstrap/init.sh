@@ -1,12 +1,7 @@
 #!/bin/bash
 
 [ -z "$REPLICATION_NODES" ] && echo "Error not set REPLICATION_NODES" && exit 1
-[ -z "$SHARD_NODES" ] && echo "Error not set SHARD_NODES" && exit 1
 [ -z "$REPL_SET" ] && echo "Error not set REPL_SET" && exit 1
-[ -z "$ADMIN_PASSWORD" ] && echo "Error not set ADMIN_PASSWORD" && exit 1
-[ -z "$EXPORTER_PASSWORD" ] && echo "Error not set EXPORTER_PASSWORD" && exit 1
-[ -z "$MONGOLIZER_PASSWORD" ] && echo "Error not set MONGOLIZER_PASSWORD" && exit 1
-[ -z "$APP_PASSWORD" ] && echo "Error not set APP_PASSWORD" && exit 1
 [ -z "$KEY_FILE" ] && echo "Error not set KEY_FILE" && exit 1
 
 [[ `hostname` =~ -([0-9]+)$ ]] || exit 1
@@ -18,7 +13,7 @@ if [[ $ordinal -ne 0 ]]; then
 fi
 
 # https://docs.mongodb.com/manual/tutorial/deploy-sharded-cluster-with-keyfile-access-control/
-gosu root mongod --configsvr --transitionToAuth --keyFile ${KEY_FILE} --replSet ${REPL_SET} --fork --logpath ${DB_ROOT}/init-admin.log --port 27017 --dbpath ${DB_ROOT}
+gosu root mongod --configsvr --keyFile ${KEY_FILE} --replSet ${REPL_SET} --fork --logpath ${DB_ROOT}/init-admin.log --port 27017 --dbpath ${DB_ROOT}
 if [ $? -ne 0 ]; then
     cat ${DB_ROOT}/init-admin.log
     exit 1
