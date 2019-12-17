@@ -15,7 +15,7 @@ if [[ $ordinal -ne 0 ]]; then
 fi
 
 # https://docs.mongodb.com/manual/tutorial/deploy-sharded-cluster-with-keyfile-access-control/
-gosu root mongod --configsvr --keyFile ${KEY_FILE} --replSet ${REPL_SET} --fork --logpath ${DB_ROOT}/init-admin.log --port 27017 --dbpath ${DB_ROOT}
+gosu root mongod --configsvr --transitionToAuth --keyFile ${KEY_FILE} --replSet ${REPL_SET} --fork --logpath ${DB_ROOT}/init-admin.log --port 27017 --dbpath ${DB_ROOT}
 if [ $? -ne 0 ]; then
     cat ${DB_ROOT}/init-admin.log
     exit 1
@@ -42,6 +42,28 @@ rs.initiate( {
 
 # Wait for MongoDB to become PRIMARY
 sleep 10
+
+echo "creating user ${ADMIN_USERNAME}"
+mongo --quiet --eval "
+db.getSiblingDB(\"admin\").createUser({
+  user: \"${ADMIN_USERNAME:?}\",
+  pwd: \"${ADMIN_PASSWORD:?}\",
+  roles: [{
+	role: \"root\",
+	db: \"admin\"
+  }]
+});"
+
+echo "creating user ${EXPORTER_USERNAME}"
+mongo --quiet --eval "
+db.getSiblingDB(\"admin\").createUser({
+    user: \"${EXPORTER_USERNAME:?}\",
+    pwd: \"${EXPORTER_PASSWORD:?}\",
+    roles: [
+        { role: \"clusterMonitor\", db: \"admin\" },
+        { role: \"read\", db: \"local\" }
+    ]
+});"
 
 nodes=$(echo $REPLICATION_NODES | tr "," "\n")
 counter=1
@@ -77,28 +99,6 @@ do
 done 
 script="$script rs.reconfig(cfg);$NEWLINE"
 mongo --eval "$script"
-
-echo "creating user ${ADMIN_USERNAME}"
-mongo --quiet --eval "
-db.getSiblingDB(\"admin\").createUser({
-  user: \"${ADMIN_USERNAME:?}\",
-  pwd: \"${ADMIN_PASSWORD:?}\",
-  roles: [{
-	role: \"root\",
-	db: \"admin\"
-  }]
-});"
-
-echo "creating user ${EXPORTER_USERNAME}"
-mongo --quiet --eval "
-db.getSiblingDB(\"admin\").createUser({
-    user: \"${EXPORTER_USERNAME:?}\",
-    pwd: \"${EXPORTER_PASSWORD:?}\",
-    roles: [
-        { role: \"clusterMonitor\", db: \"admin\" },
-        { role: \"read\", db: \"local\" }
-    ]
-});"
 
 echo "initialisation complete"
 mongod --shutdown
