@@ -16,20 +16,25 @@ if [[ $ordinal -ne 0 ]]; then
 fi
 
 # https://docs.mongodb.com/manual/tutorial/deploy-sharded-cluster-with-keyfile-access-control/
-gosu root mongod --shardsvr --transitionToAuth --keyFile ${KEY_FILE} --replSet ${REPL_SET} --logpath ${DB_ROOT}/init-admin.log --dbpath ${DB_ROOT} -vv &
+gosu root mongod --shardsvr --transitionToAuth --keyFile ${KEY_FILE} --replSet ${REPL_SET} --fork --logpath ${DB_ROOT}/init-admin.log --dbpath ${DB_ROOT}
 if [ $? -ne 0 ]; then
     cat ${DB_ROOT}/init-admin.log
     exit 1
 fi
+
+echo "init"
 
 set -e
 sleep 30
 
 # If the cluster has already been initialised, exit
 res="$(mongo --quiet --eval='printjson(rs.status())')"
+echo $res
 if [[ $res != *"NotYetInitialized"* ]]; then
     exit 0
 fi
+
+echo "cont"
 
 name=$(hostname -f)
 
