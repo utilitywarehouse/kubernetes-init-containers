@@ -43,6 +43,36 @@ rs.initiate( {
 # Wait for MongoDB to become PRIMARY
 sleep 10
 
+echo "creating user ${ADMIN_USERNAME}"
+mongo --quiet --eval "
+db.getSiblingDB(\"admin\").createUser({
+  user: \"${ADMIN_USERNAME:?}\",
+  pwd: \"${ADMIN_PASSWORD:?}\",
+  roles: [{
+	role: \"root\",
+	db: \"admin\"
+  }]
+});"
+
+echo "creating user ${EXPORTER_USERNAME}"
+mongo --quiet --eval "
+db.getSiblingDB(\"admin\").createUser({
+    user: \"${EXPORTER_USERNAME:?}\",
+    pwd: \"${EXPORTER_PASSWORD:?}\",
+    roles: [
+        { role: \"clusterMonitor\", db: \"admin\" },
+        { role: \"read\", db: \"local\" }
+    ]
+});"
+
+echo "creating user ${MONGOLIZER_USERNAME}"
+mongo --quiet --eval "
+db.getSiblingDB(\"admin\").createUser({
+    user: \"${MONGOLIZER_USERNAME:?}\",
+    pwd: \"${MONGOLIZER_PASSWORD:?}\",
+    roles: [{ role: \"backup\", db:\"admin\"}]
+});"
+
 nodes=$(echo $REPLICATION_NODES | tr "," "\n")
 counter=1
 for node in $nodes
@@ -77,36 +107,6 @@ do
 done 
 script="$script rs.reconfig(cfg);$NEWLINE"
 mongo --quiet --eval "$script"
-
-echo "creating user ${ADMIN_USERNAME}"
-mongo --quiet --eval "
-db.getSiblingDB(\"admin\").createUser({
-  user: \"${ADMIN_USERNAME:?}\",
-  pwd: \"${ADMIN_PASSWORD:?}\",
-  roles: [{
-	role: \"root\",
-	db: \"admin\"
-  }]
-});"
-
-echo "creating user ${EXPORTER_USERNAME}"
-mongo --quiet --eval "
-db.getSiblingDB(\"admin\").createUser({
-    user: \"${EXPORTER_USERNAME:?}\",
-    pwd: \"${EXPORTER_PASSWORD:?}\",
-    roles: [
-        { role: \"clusterMonitor\", db: \"admin\" },
-        { role: \"read\", db: \"local\" }
-    ]
-});"
-
-echo "creating user ${MONGOLIZER_USERNAME}"
-mongo --quiet --eval "
-db.getSiblingDB(\"admin\").createUser({
-    user: \"${MONGOLIZER_USERNAME:?}\",
-    pwd: \"${MONGOLIZER_PASSWORD:?}\",
-    roles: [{ role: \"backup\", db:\"admin\"}]
-});"
 
 echo "initialisation complete"
 mongod --shutdown --dbpath ${DB_ROOT} 
