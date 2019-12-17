@@ -3,6 +3,8 @@
 [ -z "$REPLICATION_NODES" ] && echo "Error not set REPLICATION_NODES" && exit 1
 [ -z "$REPL_SET" ] && echo "Error not set REPL_SET" && exit 1
 [ -z "$KEY_FILE" ] && echo "Error not set KEY_FILE" && exit 1
+[ -z "$ADMIN_PASSWORD" ] && echo "Error not set ADMIN_PASSWORD" && exit 1
+[ -z "$EXPORTER_PASSWORD" ] && echo "Error not set EXPORTER_PASSWORD" && exit 1
 
 [[ `hostname` =~ -([0-9]+)$ ]] || exit 1
 ordinal=${BASH_REMATCH[1]}
@@ -41,12 +43,11 @@ rs.initiate( {
 # Wait for MongoDB to become PRIMARY
 sleep 10
 
-echo "adding replication nodes"
 nodes=$(echo $REPLICATION_NODES | tr "," "\n")
 counter=1
 for node in $nodes
 do
-    echo "adding replica ${node}, ${counter}"
+    echo "adding replica ${counter} ${node}"
     while true
     do
         script="mongo --quiet --eval 'rs.add({_id: ${counter}, host:\"${node}\", priority: 0.99})'"
@@ -59,6 +60,7 @@ do
         echo "retrying ${node}"
         sleep 5
     done
+
     counter=$[$counter +1]
 done
 
@@ -76,6 +78,32 @@ done
 script="$script rs.reconfig(cfg);$NEWLINE"
 mongo --eval "$script"
 
-# TODO(kaperys) Can I add users here (directly to the config server)?
+echo "creating user ${ADMIN_USERNAME}"
+mongo --quiet --eval "
+db.getSiblingDB(\"admin\").createUser({
+  user: \"${ADMIN_USERNAME:?}\",
+  pwd: \"${ADMIN_PASSWORD:?}\",
+  roles: [{
+	role: \"root\",
+	db: \"admin\"
+  }]
+});
+"
 
+echo "creating user ${EXPORTER_USERNAME}"
+mongo --quiet --eval "
+db.getSiblingDB(\"admin\").createUser({
+    user: \"${EXPORTER_USERNAME:?}\",
+    pwd: \"${EXPORTER_PASSWORD:?}\",
+    roles: [
+        { role: \"clusterMonitor\", db: \"admin\" },
+        { role: \"read\", db: \"local\" }
+    ]
+});
+"
+
+echo "initialisation complete"
+
+# Wait logs to be collected before the pod is terminated
+sleep 10
 mongod --shutdown
