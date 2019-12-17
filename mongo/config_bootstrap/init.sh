@@ -7,6 +7,7 @@
 [ -z "$EXPORTER_PASSWORD" ] && echo "Error not set EXPORTER_PASSWORD" && exit 1
 [ -z "$MONGOLIZER_PASSWORD" ] && echo "Error not set MONGOLIZER_PASSWORD" && exit 1
 [ -z "$APP_PASSWORD" ] && echo "Error not set APP_PASSWORD" && exit 1
+[ -z "$KEY_FILE" ] && echo "Error not set KEY_FILE" && exit 1
 
 [[ `hostname` =~ -([0-9]+)$ ]] || exit 1
 ordinal=${BASH_REMATCH[1]}
@@ -37,6 +38,7 @@ echo "starting bootstrap"
 mongo --quiet --eval "
 rs.initiate( {
    _id : \"${REPL_SET}\",
+   configsvr: true,
    members: [ { _id : 0, host : \"${name}\" } ]
 })"
 
