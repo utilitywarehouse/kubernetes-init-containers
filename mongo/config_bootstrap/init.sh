@@ -5,8 +5,6 @@
 [ -z "$KEY_FILE" ] && echo "Error not set KEY_FILE" && exit 1
 [ -z "$ADMIN_PASSWORD" ] && echo "Error not set ADMIN_PASSWORD" && exit 1
 [ -z "$EXPORTER_PASSWORD" ] && echo "Error not set EXPORTER_PASSWORD" && exit 1
-[ -z "$MONGOLIZER_PASSWORD" ] && echo "Error not set MONGOLIZER_PASSWORD" && exit 1
-[ -z "$APP_PASSWORD" ] && echo "Error not set APP_PASSWORD" && exit 1
 [ -z "$APP_DB" ] && echo "Error not set APP_DB" && exit 1
 [ -z "$SHARD_NODES" ] && echo "Error not set SHARD_NODES" && exit 1
 
@@ -79,22 +77,6 @@ db.getSiblingDB(\"admin\").createUser({
         { role: \"clusterMonitor\", db: \"admin\" },
         { role: \"read\", db: \"local\" }
     ]
-});"
-
-echo "creating user ${MONGOLIZER_USERNAME}"
-mongo --port 27019 --quiet --eval "
-db.getSiblingDB(\"admin\").createUser({
-    user: \"${MONGOLIZER_USERNAME:?}\",
-    pwd: \"${MONGOLIZER_PASSWORD:?}\",
-    roles: [{ role: \"backup\", db:\"admin\"}]
-});"
-
-echo "creating user ${APP_USERNAME}"
-mongo --port 27019 --quiet --eval "
-db.getSiblingDB(\"admin\").createUser({
-    user: \"${APP_USERNAME:?}\",
-    pwd: \"${APP_PASSWORD:?}\",
-    roles: [{ role: \"readWrite\", db: \"${APP_DB:?}\"}]
 });"
 
 nodes=$(echo $SHARD_NODES | tr "," "\n")
