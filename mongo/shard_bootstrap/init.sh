@@ -5,7 +5,6 @@
 [ -z "$KEY_FILE" ] && echo "Error not set KEY_FILE" && exit 1
 [ -z "$ADMIN_PASSWORD" ] && echo "Error not set ADMIN_PASSWORD" && exit 1
 [ -z "$EXPORTER_PASSWORD" ] && echo "Error not set EXPORTER_PASSWORD" && exit 1
-[ -z "$MONGOLIZER_PASSWORD" ] && echo "Error not set MONGOLIZER_PASSWORD" && exit 1
 
 [[ `hostname` =~ -([0-9]+)$ ]] || exit 1
 ordinal=${BASH_REMATCH[1]}
@@ -63,14 +62,6 @@ db.getSiblingDB(\"admin\").createUser({
         { role: \"clusterMonitor\", db: \"admin\" },
         { role: \"read\", db: \"local\" }
     ]
-});"
-
-echo "creating user ${MONGOLIZER_USERNAME}"
-mongo --port 27018 --quiet --eval "
-db.getSiblingDB(\"admin\").createUser({
-    user: \"${MONGOLIZER_USERNAME:?}\",
-    pwd: \"${MONGOLIZER_PASSWORD:?}\",
-    roles: [{ role: \"backup\", db:\"admin\"}]
 });"
 
 nodes=$(echo $REPLICATION_NODES | tr "," "\n")
