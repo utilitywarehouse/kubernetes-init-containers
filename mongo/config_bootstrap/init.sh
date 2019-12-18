@@ -67,6 +67,39 @@ db.getSiblingDB(\"admin\").createUser({
     ]
 });"
 
+# Shards cannot be added directly to config serevers, so we need to spin up a temporary mongos instance
+echo "starting temporary mongos instance"
+set +e
+gosu root mongos --transitionToAuth --keyFile ${KEY_FILE} --fork --logpath ${DB_ROOT}/init-mongos.log --configdb ${REPL_SET}/localhost:27019
+if [ $? -ne 0 ]; then
+    cat ${DB_ROOT}/init-mongos.log
+    exit 1
+fi
+
+set -e
+sleep 15
+
+nodes=$(echo $SHARD_NODES | tr "," "\n")
+for node in $nodes
+do
+    echo "adding node shard node ${node}"
+    while true
+    do
+        script="mongo --port 27018 --quiet --eval 'sh.addShard(\"${node}\")'"
+        out=$(eval "$script")
+        echo $out
+        if [[ $out == *"shardAdded"* ]]; then
+            break
+        fi
+
+        echo "retrying ${node}"
+        sleep 5
+    done
+done
+
+echo "enabling sharing on ${APP_DB}"
+mongo --port 27018 --quiet --eval "sh.enableSharding(\"${APP_DB}\")"
+
 nodes=$(echo $REPLICATION_NODES | tr "," "\n")
 counter=1
 for node in $nodes
@@ -101,39 +134,6 @@ do
 done 
 script="$script rs.reconfig(cfg);$NEWLINE"
 mongo --port 27019 --eval "$script"
-
-echo "starting temporary mongos instance"
-
-set +e
-gosu root mongos --transitionToAuth --keyFile ${KEY_FILE} --fork --logpath ${DB_ROOT}/init-mongos.log --configdb ${REPL_SET}/localhost:27019
-if [ $? -ne 0 ]; then
-    cat ${DB_ROOT}/init-mongos.log
-    exit 1
-fi
-
-set -e
-sleep 15
-
-nodes=$(echo $SHARD_NODES | tr "," "\n")
-for node in $nodes
-do
-    echo "adding node shard node ${node}"
-    while true
-    do
-        script="mongo --port 27018 --quiet --eval 'sh.addShard(\"${node}\")'"
-        out=$(eval "$script")
-        echo $out
-        if [[ $out == *"shardAdded"* ]]; then
-            break
-        fi
-
-        echo "retrying ${node}"
-        sleep 5
-    done
-done
-
-echo "enabling sharing on ${APP_DB}"
-mongo --port 27018 --quiet --eval "sh.enableSharding(\"${APP_DB}\")"
 
 echo "initialisation complete"
 mongod --port 27019 --shutdown --dbpath ${DB_ROOT}
