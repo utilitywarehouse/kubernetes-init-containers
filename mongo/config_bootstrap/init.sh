@@ -3,6 +3,8 @@
 [ -z "$REPLICATION_NODES" ] && echo "Error not set REPLICATION_NODES" && exit 1
 [ -z "$REPL_SET" ] && echo "Error not set REPL_SET" && exit 1
 [ -z "$KEY_FILE" ] && echo "Error not set KEY_FILE" && exit 1
+[ -z "$ADMIN_PASSWORD" ] && echo "Error not set ADMIN_PASSWORD" && exit 1
+[ -z "$EXPORTER_PASSWORD" ] && echo "Error not set EXPORTER_PASSWORD" && exit 1
 [ -z "$DB_ROOT" ] && echo "Error not set DB_ROOT" && exit 1
 
 [[ `hostname` =~ -([0-9]+)$ ]] || exit 1
@@ -41,6 +43,28 @@ rs.initiate( {
 
 # Wait for MongoDB to become PRIMARY
 sleep 10
+
+echo "creating user ${ADMIN_USERNAME}"
+mongo --port 27019 --quiet --eval "
+db.getSiblingDB(\"admin\").createUser({
+  user: \"${ADMIN_USERNAME:?}\",
+  pwd: \"${ADMIN_PASSWORD:?}\",
+  roles: [{
+	role: \"root\",
+	db: \"admin\"
+  }]
+});"
+
+echo "creating user ${EXPORTER_USERNAME}"
+mongo --port 27019 --quiet --eval "
+db.getSiblingDB(\"admin\").createUser({
+    user: \"${EXPORTER_USERNAME:?}\",
+    pwd: \"${EXPORTER_PASSWORD:?}\",
+    roles: [
+        { role: \"clusterMonitor\", db: \"admin\" },
+        { role: \"read\", db: \"local\" }
+    ]
+});"
 
 nodes=$(echo $REPLICATION_NODES | tr "," "\n")
 counter=1

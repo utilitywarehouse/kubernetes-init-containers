@@ -5,6 +5,7 @@
 [ -z "$KEY_FILE" ] && echo "Error not set KEY_FILE" && exit 1
 [ -z "$ADMIN_PASSWORD" ] && echo "Error not set ADMIN_PASSWORD" && exit 1
 [ -z "$EXPORTER_PASSWORD" ] && echo "Error not set EXPORTER_PASSWORD" && exit 1
+[ -z "$DB_ROOT" ] && echo "Error not set DB_ROOT" && exit 1
 
 [[ `hostname` =~ -([0-9]+)$ ]] || exit 1
 ordinal=${BASH_REMATCH[1]}
