@@ -1,4 +1,3 @@
-
 DOCKER_REGISTRY=registry.uw.systems
 DOCKER_REPOSITORY_NAMESPACE=telecom
 DOCKER_ID=telco
@@ -22,4 +21,4 @@ all: ci-docker-auth
 	$(MAKE) -C mongo/ensure-cluster-user ci-docker-build
 	$(MAKE) -C mongo/ensure-standalone-user ci-docker-build
 	$(MAKE) -C mongo/auth-bootstrap ci-docker-build
-
+	$(MAKE) -C postgres/auth-bootstrap ci-docker-build
