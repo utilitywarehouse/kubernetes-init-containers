@@ -1,0 +1,29 @@
+version: '3.1'
+
+services:
+  init:
+    container_name: init
+    build: .
+    environment:
+      ADMIN_PASSWORD: "password"
+      EXPORTER_PASSWORD: "exporter-password"
+      APP_PASSWORD: "app-password"
+      DB_ROOT: "/var/lib/postgresql/data"
+      DB_NAME: "database"
+    volumes:
+      - "postgres-data:/var/lib/postgresql/data"
+
+  postgres:
+    container_name: postgres
+    image: postgres:12.1-alpine
+    environment:
+      PGDATA: "/var/lib/postgresql/data"
+    ports:
+      - "5432:5432"
+    volumes:
+      - "postgres-data:/var/lib/postgresql/data"
+    depends_on:
+      - "init"
+
+volumes:
+  postgres-data:
