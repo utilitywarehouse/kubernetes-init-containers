@@ -10,16 +10,29 @@
 [ -z "$EXPORTER_PASSWORD" ] && echo "Error not set EXPORTER_PASSWORD" && exit 1
 
 set -x
-echo "CREATE DATABASE ${DB_NAME};
+
+cat <<EOF >> /tmp/pwd
+${ADMIN_PASSWORD} 
+EOF
+
+mkdir -p ${DB_ROOT}
+chown postgres:postgres -R ${DB_ROOT}
+su postgres -c "/usr/local/bin/initdb --username="${ADMIN_USERNAME}" --pwfile=/tmp/pwd -D ${DB_ROOT}"
+
+echo "host all all 0.0.0.0/0 password" >> /var/lib/postgresql/data/pg_hba.conf
+echo "host all all ::0/0 password" >> /var/lib/postgresql/data/pg_hba.conf
+
+cat <<EOF >> /init.sql
+CREATE DATABASE ${DB_NAME};
 
 CREATE USER ${APP_USERNAME} WITH PASSWORD '${APP_PASSWORD}';
 GRANT ALL PRIVILEGES ON DATABASE ${DB_NAME} TO ${APP_USERNAME};
 
 CREATE USER ${EXPORTER_USERNAME} WITH PASSWORD '${EXPORTER_PASSWORD}';
-GRANT ALL PRIVILEGES ON DATABASE ${DB_NAME} TO ${EXPORTER_USERNAME};" >> /docker-entrypoint-initdb.d/init.sql
+GRANT ALL PRIVILEGES ON DATABASE ${DB_NAME} TO ${EXPORTER_USERNAME};
+EOF
 
-echo ${ADMIN_PASSWORD} >> /tmp/pwd
-su postgres -c "/usr/local/bin/initdb --username="${ADMIN_USERNAME}" --pwfile=/tmp/pwd -D ${DB_ROOT}"
+su postgres -c "postgres -D ${DB_ROOT}" &
+sleep 5
 
-echo "host all all 0.0.0.0/0 password" >> /var/lib/postgresql/data/pg_hba.conf
-echo "host all all ::0/0 password" >> /var/lib/postgresql/data/pg_hba.conf
+psql -v ON_ERROR_STOP=1 --username "${ADMIN_USERNAME}" --no-password -f /init.sql
