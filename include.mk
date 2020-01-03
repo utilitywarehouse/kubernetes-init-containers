@@ -1,4 +1,3 @@
-
 DOCKER_REGISTRY=registry.uw.systems
 DOCKER_REPOSITORY_NAMESPACE=telecom
 DOCKER_ID=telco
@@ -20,4 +19,3 @@ ci-docker-build:
 	docker build -t $(DOCKER_REPOSITORY):$(CIRCLE_SHA1) .
 	docker tag $(DOCKER_REPOSITORY):$(CIRCLE_SHA1) $(DOCKER_REPOSITORY):latest
 	docker push $(DOCKER_REPOSITORY)
-
