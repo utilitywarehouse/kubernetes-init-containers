@@ -11,16 +11,21 @@
 
 set -x
 
+# only continue if the database isn't already initialised
+if [ -s "${DB_ROOT}/PG_VERSION" ]; then
+    exit 0
+fi
+
 cat <<EOF >> /tmp/pwd
-${ADMIN_PASSWORD} 
+${ADMIN_PASSWORD}
 EOF
 
 mkdir -p ${DB_ROOT}
 chown postgres:postgres -R ${DB_ROOT}
 su postgres -c "/usr/local/bin/initdb --username="${ADMIN_USERNAME}" --pwfile=/tmp/pwd -D ${DB_ROOT}"
 
-echo "host all all 0.0.0.0/0 password" >> /var/lib/postgresql/data/pg_hba.conf
-echo "host all all ::0/0 password" >> /var/lib/postgresql/data/pg_hba.conf
+echo "host all all 0.0.0.0/0 trust" >> ${DB_ROOT}/pg_hba.conf
+echo "host all all ::0/0 trust" >> ${DB_ROOT}/pg_hba.conf
 
 cat <<EOF >> /init.sql
 CREATE DATABASE ${DB_NAME};
