@@ -3,6 +3,7 @@
 [ -z "$ADMIN_PASSWORD" ] && echo "Error not set ADMIN_PASSWORD" && exit 1
 [ -z "$EXPORTER_PASSWORD" ] && echo "Error not set EXPORTER_PASSWORD" && exit 1
 [ -z "$MONGOLIZER_PASSWORD" ] && echo "Error not set MONGOLIZER_PASSWORD" && exit 1
+[ -z "$APP_PASSWORD" ] && echo "Error not set APP_PASSWORD" && exit 1
 
 if [ -f ${DB_ROOT}/mongod.lock ]; then
     exit 0
