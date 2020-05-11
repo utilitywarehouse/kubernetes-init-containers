@@ -24,9 +24,6 @@ mkdir -p ${DB_ROOT}
 chown postgres:postgres -R ${DB_ROOT}
 su postgres -c "/usr/local/bin/initdb --username="${ADMIN_USERNAME}" --pwfile=/tmp/pwd -D ${DB_ROOT}"
 
-echo "host all all 0.0.0.0/0 trust" >> ${DB_ROOT}/pg_hba.conf
-echo "host all all ::0/0 trust" >> ${DB_ROOT}/pg_hba.conf
-
 cat <<EOF >> /init.sql
 CREATE DATABASE ${DB_NAME};
 
