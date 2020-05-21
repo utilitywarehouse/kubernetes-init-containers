@@ -10,6 +10,7 @@ services:
       APP_PASSWORD: "app-password"
       DB_ROOT: "/var/lib/postgresql/data"
       DB_NAME: "database"
+      POSTGRES_PASSWORD: "password"
     volumes:
       - "postgres-data:/var/lib/postgresql/data"
 
