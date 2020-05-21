@@ -3,7 +3,6 @@
 [ -z "$DB_ROOT" ] && echo "Error not set DB_ROOT" && exit 1
 [ -z "$DB_NAME" ] && echo "Error not set DB_NAME" && exit 1
 [ -z "$ADMIN_USERNAME" ] && echo "Error not set ADMIN_USERNAME" && exit 1
-[ -z "$ADMIN_PASSWORD" ] && echo "Error not set ADMIN_PASSWORD" && exit 1
 [ -z "$APP_USERNAME" ] && echo "Error not set APP_USERNAME" && exit 1
 [ -z "$APP_PASSWORD" ] && echo "Error not set APP_PASSWORD" && exit 1
 [ -z "$EXPORTER_USERNAME" ] && echo "Error not set EXPORTER_USERNAME" && exit 1
