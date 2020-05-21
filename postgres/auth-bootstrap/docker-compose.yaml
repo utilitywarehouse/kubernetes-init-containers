@@ -5,7 +5,6 @@ services:
     container_name: init
     build: .
     environment:
-      ADMIN_PASSWORD: "password"
       EXPORTER_PASSWORD: "exporter-password"
       APP_PASSWORD: "app-password"
       DB_ROOT: "/var/lib/postgresql/data"
