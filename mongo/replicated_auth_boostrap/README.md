@@ -12,6 +12,9 @@ It creates 4 users: metrics exporter, mongolizer (backups), admin (root) and app
 
 App user gets rights to APP_DB and should be used in your application.
 
+`MASTER_NODE` is in format `hostname:port`
+this variable needs to only have the initial primary node, and is a way to override `cluster.local` limitations for cross-cluster replication
+
 `REPLICATION_NODES` are in format `hostname:port,hostname:port`
 this variable needs to have only secondary nodes, ie starting from 1 (ignoring the 0th, which will be the primary node)
 
