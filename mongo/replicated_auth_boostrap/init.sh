@@ -41,6 +41,9 @@ if [[ $res != *"NotYetInitialized"* ]]; then
 fi
 
 name=$(hostname -f)
+if [[ ${MASTER_NODE} ]]; then
+    name=${MASTER_NODE}
+fi
 
 echo "starting bootstrap"
 mongo --quiet --eval "
