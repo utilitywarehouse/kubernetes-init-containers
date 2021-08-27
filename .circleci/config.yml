@@ -9,7 +9,7 @@ jobs:
       - checkout
       - setup_remote_docker:
           version: 20.10.6
-      - run: make ci-docker-build
+      - run: make all
 workflows:
   version: 2
   development:
