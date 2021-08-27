@@ -8,10 +8,11 @@ jobs:
       - run: git config --global url."https://$GITHUB_TOKEN:x-oauth-basic@github.com/".insteadOf "https://github.com/"
       - checkout
       - setup_remote_docker:
-          version: 17.10.0-ce
+          version: 20.10.6
       - run: make all
 workflows:
   version: 2
   development:
     jobs:
-      - build
+     - build:
+          context: telecom
